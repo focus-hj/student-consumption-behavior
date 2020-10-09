@@ -3,14 +3,14 @@ import pandas as pd
 data2 = pd.read_csv("../data/data2.csv", encoding='gbk')
 
 # data2数据处理
-print(data2.head(10))
-print(data2.shape)
+# print(data2.head(3))
+# print(data2.shape)
 # 列重命名
 data2.columns = ['流水号', '校园卡号', '校园卡编号', '消费时间', '消费金额', '存储金额', '余额', '消费次数', '消费类型', '消费项目编码', '消费项目序列号', '消费操作编码',
                  '操作编码', '消费地点']
 
-data2.info()
-print(data2.columns)
+# data2.info()
+# print(data2.columns)
 
 # 对data2中消费时间数据进行时间格式转换，coerce将无效解析设置为NaT
 data2.loc[:, '消费时间'] = pd.to_datetime(data2.loc[:, '消费时间'], format='%Y/%m/%d %H:%M', errors='coerce')
@@ -44,7 +44,7 @@ def f(data, col):
 exception = ['消费金额', '余额', '消费次数']
 for i in exception:
     data2_new = f(data2_new, i)
-data2_new.describe()
+print(data2_new.describe())
 
 # 将data2_new存储为task1_1_2.csv
 data2_new.to_csv('../data/out/task1_1_2.csv', index=False, encoding='gbk')
