@@ -1,7 +1,5 @@
-import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -28,12 +26,25 @@ print(X.head(10))
 X_man = X[X['性别'] == 0].drop('性别', axis=1)
 X_woman = X[X['性别'] == 1].drop('性别', axis=1)
 
-kmeans = KMeans(n_clusters=4)
+label_list = ['很高(2)', '高(1)', '中(0)', '低(-1)', '很低(-2)']
+num_list1 = [len(X_man[X_man['食堂消费总额'] == i]) for i in [2, 1, 0, -1, -2]]
+num_list2 = [len(X_woman[X_woman['食堂消费总额'] == i]) for i in [2, 1, 0, -1, -2]]
+x = range(len(num_list1))
+print(num_list1)
+print(num_list2)
 
-kmeans.fit(X_man)
-print("Man Cluster memberships:\n{}".format(kmeans.labels_))
-print(kmeans.cluster_centers_)
+rects1 = plt.bar(x=x, height=num_list1, width=0.4, alpha=0.8, color='blue', label='男生')
+rects2 = plt.bar(x=[i + 0.4 for i in x], height=num_list2, width=0.4, color='red', label="女生")
+plt.xticks([index + 0.2 for index in x], label_list, fontproperties=font)
+plt.xlabel('食堂消费额离散值', fontproperties=font)
+plt.ylabel('人数', fontproperties=font)
+plt.legend(prop=font)
 
-kmeans.fit(X_woman)
-print("Woman Cluster memberships:\n{}".format(kmeans.labels_))
-print(kmeans.cluster_centers_)
+for rect in rects1:
+    height = rect.get_height()
+    plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height), ha="center", va="bottom")
+for rect in rects2:
+    height = rect.get_height()
+    plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height), ha="center", va="bottom")
+
+plt.show()
