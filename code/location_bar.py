@@ -8,7 +8,7 @@ mpl.use('TkAgg')
 font = FontProperties(fname="../SimHei.ttf")
 
 X = pd.read_csv('../data/out/task1_3_2.csv', encoding='gbk')
-X = X[['性别', '超市消费总额', '食堂消费总额', '当月用卡总次数', '常去消费地点']]
+X = X[['性别', '常去消费地点']]
 print(X.head(10))
 
 X_man = X[X['性别'] == 0].drop('性别', axis=1)

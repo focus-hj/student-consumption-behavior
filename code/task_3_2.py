@@ -7,7 +7,7 @@ data = pd.read_csv('../data/out/task1_2_1.csv', usecols=['校园卡号', '性别
 print(data.head(3))
 print(data.shape)
 
-# data_new ['校园卡号', '性别', '超市消费总额', '食堂消费总额', '当月用卡总次数', '常去消费地点']
+# data_new ['校园卡号', '性别', '超市消费总额', '食堂消费总额', '食堂消费占比', '当月用卡总次数', '常去消费地点']
 card_num = ''
 loc_dict = {}
 sex_dict = {}
@@ -64,15 +64,19 @@ for key, value in loc_dict.items():
     most_common = collection_value.most_common(1)[0][0]
     # 当月用卡总次数
     consume_num = max(num_dict[key]) - min(num_dict[key])
+    market_consume = market_dict[key] if market_dict.get(key) else 0
+    canteen_consume = canteen_dict[key] if canteen_dict.get(key) else 0
     stu_dict = {'校园卡号': key,
                 '性别': sex_dict[key],
-                '超市消费总额': market_dict[key] if market_dict.get(key) else 0,
-                '食堂消费总额': canteen_dict.get(key) if canteen_dict.get(key) else 0,
+                '超市消费总额': market_consume,
+                '食堂消费总额': canteen_consume,
+                '消费总额': market_consume + canteen_consume,
+                '食堂消费占比': canteen_consume / (canteen_consume + market_consume),
                 '当月用卡总次数': consume_num,
                 '常去消费地点': most_common}
     new_data_list.append(stu_dict)
 
-new_data = pd.DataFrame(new_data_list, columns=['校园卡号', '性别', '超市消费总额', '食堂消费总额', '当月用卡总次数', '常去消费地点'])
+new_data = pd.DataFrame(new_data_list, columns=['校园卡号', '性别', '超市消费总额', '食堂消费总额', '消费总额', '食堂消费占比', '当月用卡总次数', '常去消费地点'])
 print(new_data.head(3))
 new_data.to_csv('../data/out/task1_3_2.csv', index=False, encoding='gbk')
 
