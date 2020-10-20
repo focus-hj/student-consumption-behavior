@@ -4,6 +4,9 @@ from sklearn.cluster import KMeans
 from sklearn import metrics
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
+from collections import defaultdict
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
@@ -13,12 +16,15 @@ mpl.use('TkAgg')
 font = FontProperties(fname="../SimHei.ttf")
 
 X = pd.read_csv('../data/out/task1_3_2.csv', encoding='gbk')
-X = X[['性别', '消费总额', '食堂消费占比', '当月用卡总次数', '常去消费地点']]
-# X = X[['性别', '消费总额', '食堂消费占比', '当月用卡总次数']]
+# X = X[['性别', '消费总额', '食堂消费占比', '早上消费占比', '中午消费占比', '晚上消费占比', '当月用卡总次数', '常去消费地点']]
+X = X[['性别', '消费总额', '食堂消费占比', '中午消费占比', '当月用卡总次数']]
 print(X.head(10))
 
 X['消费总额'] = pd.cut(X['消费总额'], [0, 100, 200, 350, 500, 1000], labels=[-2, -1, 0, 1, 2])
 X['食堂消费占比'] = pd.cut(X['食堂消费占比'], [-0.1, 0.7, 0.85, 0.95, 0.99, 1.1], labels=[-2, -1, 0, 1, 2])
+# X['早上消费占比'] = pd.cut(X['早上消费占比'], [-0.1, 0.01, 0.075, 0.15, 0.4, 1.1], labels=[-2, -1, 0, 1, 2])
+X['中午消费占比'] = pd.cut(X['中午消费占比'], [-0.1, 0.25, 0.35, 0.45, 0.6, 1.1], labels=[-2, -1, 0, 1, 2])
+# X['晚上消费占比'] = pd.cut(X['晚上消费占比'], [-0.1, 0.05, 0.2, 0.35, 0.45, 1.1], labels=[-2, -1, 0, 1, 2])
 X['当月用卡总次数'] = pd.cut(X['当月用卡总次数'], [-1, 20, 60, 100, 150, 350], labels=[-2, -1, 0, 1, 2])
 
 print(X.head(10))
@@ -57,19 +63,36 @@ kmeans = KMeans(n_clusters=4)
 
 kmeans.fit(X_man)
 print("Man Cluster memberships:\n{}".format(kmeans.labels_))
+count_dict1 = defaultdict(int)
+for label in kmeans.labels_:
+    count_dict1[label] += 1
+print(count_dict1)
 print(kmeans.cluster_centers_)
 
-# X_train, X_test, y_train, y_test = train_test_split(X_man, kmeans.labels_, stratify=kmeans.labels_)
-# tree = DecisionTreeClassifier(random_state=0)
-# tree.fit(X_train, y_train)
-# print('Accuracy on training set: {:.3f}'.format(tree.score(X_train, y_train)))
-# print('Accuracy on test set: {:.3f}'.format(tree.score(X_test, y_test)))
+# pca = PCA(n_components=2)
+# pca.fit(X_man)
+# X_man_pca = pca.fit_transform(X_man)
+#
+# plt.figure(figsize=(10, 10))
+# plt.xlim(X_man_pca[:, 0].min(), X_man_pca[:, 0].max() + 1)
+# plt.ylim(X_man_pca[:, 1].min(), X_man_pca[:, 1].max() + 1)
+# marks = ['.', 'x', '^', 's']
+# colors = ['b', 'r', 'g', 'y']
+# for i in range(len(X_man)):
+#     plt.scatter(X_man_pca[:, 0], X_man_pca[:, 1], c=colors[kmeans.labels_[i]], marker=marks[kmeans.labels_[i]])
+# plt.xlabel("First principle component")
+# plt.ylabel("Second principle component")
+# plt.show()
 
 tree = DecisionTreeClassifier()
 scores_man = cross_val_score(tree, X_man, kmeans.labels_)
 
 kmeans.fit(X_woman)
 print("Woman Cluster memberships:\n{}".format(kmeans.labels_))
+count_dict2 = defaultdict(int)
+for label in kmeans.labels_:
+    count_dict2[label] += 1
+print(count_dict2)
 print(kmeans.cluster_centers_)
 
 tree = DecisionTreeClassifier()
