@@ -2,13 +2,15 @@
 
 import pandas as pd
 from collections import Counter
+import re
 
-data = pd.read_csv('../data/out/task1_2_1.csv', usecols=['校园卡号', '性别', '消费金额', '消费次数', '消费类型', '消费时间', '消费地点'], encoding='gbk')
+data = pd.read_csv('../data/out/task1_2_1.csv', usecols=['校园卡号', '性别', '专业名称', '消费金额', '消费次数', '消费类型', '消费时间', '消费地点'], encoding='gbk')
 print(data.head(3))
 print(data.shape)
 
-# data_new ['校园卡号', '性别', '超市消费总额', '食堂消费总额', '消费总额', '食堂消费占比', '早上消费占比', '中午消费占比', '晚上消费占比', '当月用卡总次数', '常去消费地点']
+# data_new ['校园卡号', '性别', '专业名称', '超市消费总额', '食堂消费总额', '消费总额', '食堂消费占比', '早上消费占比', '中午消费占比', '晚上消费占比', '当月用卡总次数', '每次刷卡消费均值', '常去消费地点']
 card_num = ''
+major_dict = {}
 loc_dict = {}
 sex_dict = {}
 canteen_dict = {}
@@ -54,6 +56,10 @@ for index, row in data.iterrows():
     else:
         loc = 0
 
+    if card_num not in major_dict:
+        result = re.findall('[^1-9]+', row['专业名称'])[0]
+        major_dict[card_num] = result
+
     if card_num not in sex_dict:
         sex_dict[card_num] = 0 if row['性别'] == '男' else 1
 
@@ -84,7 +90,7 @@ for key, value in loc_dict.items():
     # 常去消费地点编号
     most_common = collection_value.most_common(1)[0][0]
     # 当月用卡总次数
-    consume_num = max(num_dict[key]) - min(num_dict[key])
+    consume_num = max(num_dict[key]) - min(num_dict[key]) + 1
     market_consume = market_dict[key] if market_dict.get(key) else 0
     canteen_consume = canteen_dict[key] if canteen_dict.get(key) else 0
 
@@ -93,6 +99,7 @@ for key, value in loc_dict.items():
     evening_consume = evening_dict[key] if evening_dict.get(key) else 0
     stu_dict = {'校园卡号': key,
                 '性别': sex_dict[key],
+                '专业名称': major_dict[key],
                 '超市消费总额': market_consume,
                 '食堂消费总额': canteen_consume,
                 '消费总额': market_consume + canteen_consume,
@@ -101,10 +108,11 @@ for key, value in loc_dict.items():
                 '中午消费占比': noon_consume / (canteen_consume + market_consume),
                 '晚上消费占比': evening_consume / (canteen_consume + market_consume),
                 '当月用卡总次数': consume_num,
+                '每次刷卡消费均值': round((market_consume + canteen_consume) / consume_num, 2),
                 '常去消费地点': most_common}
     new_data_list.append(stu_dict)
 
-new_data = pd.DataFrame(new_data_list, columns=['校园卡号', '性别', '超市消费总额', '食堂消费总额', '消费总额', '食堂消费占比', '早上消费占比', '中午消费占比', '晚上消费占比', '当月用卡总次数', '常去消费地点'])
+new_data = pd.DataFrame(new_data_list, columns=['校园卡号', '性别', '专业名称', '超市消费总额', '食堂消费总额', '消费总额', '食堂消费占比', '早上消费占比', '中午消费占比', '晚上消费占比', '当月用卡总次数', '每次刷卡消费均值', '常去消费地点'])
 print(new_data.head(3))
 new_data.to_csv('../data/out/task1_3_2.csv', index=False, encoding='gbk')
 
